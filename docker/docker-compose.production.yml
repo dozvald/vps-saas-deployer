@@ -1,0 +1,64 @@
+services:
+
+  frontend:
+    image: ${DOCKERHUB_USER}/${PROJECT_NAME}_spa:latest
+    #ports:
+    #  - "81:80" #for debug only. See in SPA project -> nginx.conf
+    restart: always
+    volumes:
+      - ${LOG_ROOT_FOLDER_PATH}/production/${SPA_LOGS_FOLDER_NAME}:/var/log/nginx:/var/log/nginx
+    networks:
+      - net_revproxy
+
+  backend:
+    image: ${DOCKERHUB_USER}/${PROJECT_NAME}_api:latest
+    #ports:
+    #  - "5001:5000" #for debug only (according to ASPNETCORE_URLS, see below)
+    depends_on:
+      - database
+    restart: always
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://*:5000
+      - DB_CONNECTION_STRING=server=database;port=${DB_PORT};user id=${DB_USER};password=${DB_PASSWORD};database=${DB_NAME}
+    volumes:
+      - ${LOG_ROOT_FOLDER_PATH}/production/${API_LOGS_FOLDER_NAME}:/app/logs
+    networks:
+      - net_revproxy
+      - net_backend
+
+  database:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+    #ports:
+    #  - "${DB_PORT}:${DB_PORT}" # for debug only
+    restart: always
+    volumes:
+      - ./${DB_VOLUMES_FOLDER}/production:/var/lib/mysql
+    networks:
+      - net_backend
+      
+  reverse_-proxy:
+    image: nginx:1.24-alpine-slim
+    ports:
+      - "80:80"
+      - "443:443"
+    depends_on:
+      - frontend
+      - backend
+    restart: always
+    volumes:
+      - ./${REVERSEPROXY_CONF_FOLDER}/nginx-production.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${LOG_ROOT_FOLDER_PATH}/production/${REVERSEPROXY_LOGS_FOLDER_NAME}:/var/log/nginx
+      - /etc/ssl:/etc/ssl:ro
+    networks:
+      - net_revproxy
+
+networks:
+  net_revproxy:
+    name: ${PROJECT_NAME}_net_revproxy
+    driver: bridge
+  net_backend:
+    name: ${PROJECT_NAME}_net_backend
+    driver: bridge
