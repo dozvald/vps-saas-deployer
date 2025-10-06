@@ -88,21 +88,21 @@ Reverse proxy avec HTTPS et certificats TLS.
 Les certificats TLS sont récupérés depuis /etc/ssl. Voir le fichier docker-compose.prod.yml.
 
 Ports d'accès une fois la stack lancée:
-- **80** : usage normal (accès par reverse_proxy, redirection vers Https sur le port 443)
-- **443**: 
+- **80** : redirection vers Https sur le port 443)
+- **443**: usage normal (Https, accès par reverse_proxy)
 
 ---
 
 ## 📜 Logs
 
-Les logs du Saas sont rémontés (via un volume) dans le dossier "logs" à la racine du dépôt. Le dossier sera créé automatiquement lors du premier lancement d'une stack.
+Les logs du Saas sont rémontés (via un volume) dans le dossier "logs" à la racine du dépôt.
 Les logs sont séparés par environnement (dev, staging, production) et par container (api, spa, reverse_proxy).
 
 ---
 
 ## 🛢️ Base de données
 
-Les fichiers docker-compose utilisent chacun un volume pour la base de données. Le dossier sera créé automatiquement lors du premier lancement d'une stack.
+Les fichiers docker-compose utilisent chacun un volume pour la base de données.
 Le volume utilisé pointe vers le dossier : **/docker/database-volumes**, dont le contenu est séparé par environnement (dev, staging ,production).
 
 ---

@@ -3,4 +3,3 @@ dockerfile
 .gitignore
 .gitattributes
 .github
-logs/
