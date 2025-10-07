@@ -7,6 +7,8 @@ TARGET_DIR="/target"
 KERNEL_INFO=$(cat /proc/sys/kernel/osrelease 2>/dev/null || echo "")
 IS_WINDOWS_DOCKER=0
 
+echo ""
+
 # Check Kernel info
 if echo "$KERNEL_INFO" | grep -qi "microsoft"; then
   IS_WINDOWS_DOCKER=1
@@ -37,11 +39,11 @@ if [ -z "${HOST_UID:-}" ] || [ -z "{$HOST_GID:-}" ]; then
 fi
 
 if [ "$error_missing_env" -eq 1 ] || [ "$error_missing_volume" -eq 1 ]; then
-  echo ""
   echo "Please use one of the following commands to deploy the package in the current folder:"
   echo "- Git Bash (Windows): docker run --pull always --rm -v \"\$(pwd -W):/target\" davidozvald/vps-saas-deployer:latest"
   echo "- PowerShell (Windows): docker run --pull always --rm -v \"\${pwd}:/target\" davidozvald/vps-saas-deployer:latest"
   echo "- Linux/macOS: docker run --pull always --rm -e HOST_UID=\$(id -u) -e HOST_GID=\$(id -g) -v .:/target davidozvald/vps-saas-deployer:latest"
+  exit 1
 fi
 
 # Creates a virtual user with provided UID/GID if the current user is not root
