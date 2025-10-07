@@ -4,20 +4,52 @@ set -eu
 SOURCE_DIR="/source"
 TARGET_DIR="/target"
 
-if [ ! -d /target ]; then
-  echo "Error - No volume mounted on /target !"
-  echo "Please use one of the following commands:"
-  echo "- Git Bash (Windows): docker run --pull always --rm -v \"\$(pwd -W):/target\" davidozvald/vps-saas-deployer:latest"
-  echo "- PowerShell (Windows): docker run --pull always --rm -v \"\${pwd}:/target\" davidozvald/vps-saas-deployer:latest"
-  echo "- Linux/macOS: docker run --pull always --rm -v .:/target davidozvald/vps-saas-deployer:latest"
-  exit 1
+KERNEL_INFO=$(cat /proc/sys/kernel/osrelease 2>/dev/null || echo "")
+IS_WINDOWS_DOCKER=0
+
+if echo "$KERNEL_INFO" | grep -qi "microsoft"; then
+  IS_WINDOWS_DOCKER=1
+  echo "Detected Docker Desktop (Windows/WSL kernel): $KERNEL_INFO"
 fi
 
-# Gets user id and group id
-UID_CUR=$(id -u)
-GID_CUR=$(id -g)
+error_missing_env=0
+error_missing_volume=0
 
-echo "Running as UID=$UID_CUR GID=$GID_CUR"
+if [ ! -d /target ]; then
+  error_missing_volume=1
+  echo "Error - No volume mounted for /target folder !"
+fi
+
+if [ -z "${HOST_UID:-}" ] || [ -z "{$HOST_GID:-}" ]; then
+  if [ "$IS_WINDOWS_DOCKER" -eq 1 ]; then
+    echo "Running under Docker Desktop (Windows/WSL) —> skipping UID/GID enforcement."
+    HOST_UID=0
+    HOST_GID=0
+  else	
+	error_missing_env=1
+    echo "Error - Environment variables HOST_UID and HOST_GID must be provided."
+  fi
+fi
+
+if [ "$error_missing_env" -eq 1 ] || [ "$error_missing_volume" -eq 1 ]; then
+  echo ""
+  echo "Please use one of the following commands to deploy the package in the current folder:"
+  echo "- Git Bash (Windows): docker run --pull always --rm -e HOST_UID=\$(id -u) -e HOST_GID=\$(id -g) -v \"\$(pwd -W):/target\" davidozvald/vps-saas-deployer:latest"
+  echo "- PowerShell (Windows): docker run --pull always --rm -e HOST_UID=\$(id -u) -e HOST_GID=\$(id -g) -v \"\${pwd}:/target\" davidozvald/vps-saas-deployer:latest"
+  echo "- Linux/macOS: docker run --pull always --rm -e HOST_UID=\$(id -u) -e HOST_GID=\$(id -g) -v .:/target davidozvald/vps-saas-deployer:latest"
+fi
+
+if [ "$HOST_UID" -eq 0 ]; then
+  echo "Running as root (UID=0) — skipping user creation."
+  HOST_USER="root"
+else
+  echo "Creating virtual user (UID=$HOST_UID, GID=$HOST_GID)"
+  addgroup -g "$HOST_GID" hostgroup 2>/dev/null || true
+  adduser -D -u "$HOST_UID" -G hostgroup hostuser 2>/dev/null || true
+  HOST_USER="hostuser"
+fi
+
+echo "Now running as UID=$HOST_UID GID=$HOST_GID"
 
 if [ ! -d "$TARGET_DIR" ]; then
   echo "Error - Target directory $TARGET_DIR does not exist or is not a directory."
@@ -25,27 +57,34 @@ if [ ! -d "$TARGET_DIR" ]; then
 fi
 
 # Check current user rights
-if [ ! -w "$TARGET_DIR" ]; then
-  echo "Error - $TARGET_DIR not writable by UID=$UID_CUR."
-  
-  # if user is not root, try with root user
-  if [ "$UID_CUR" -ne 0 ]; then
-    echo "Retrying as root..."
-	#replaces the process with a new user (root)
-    exec su -s /bin/sh root -c "$0 $@"
-  else
-    echo "Error - Even root cannot write to $TARGET_DIR. Check volume permissions."
+if [ "$HOST_USER" = "root" ]; then
+  sh -c "[ -w '$TARGET_DIR' ]" || {
+    echo "Error - $TARGET_DIR not writable by root."
     exit 1
-  fi
+  }
+else 
+  runuser -u "$HOST_USER" -- sh -c "[ -w '$TARGET_DIR' ]" || {
+    echo "Error - $TARGET_DIR not writable by UID=$HOST_UID."
+    echo "Check your volume permissions or adjust UID/GID."
+    exit 1
+  }
 fi
 
 echo "Starting copy..."
-mkdir $TARGET_DIR/vps-saas-deployer
-cp -rnv $SOURCE_DIR/* $TARGET_DIR/vps-saas-deployer
-rm $TARGET_DIR/vps-saas-deployer/bootstrap.sh
+if [ "$HOST_USER" = "root" ]; then
+  mkdir -p "$TARGET_DIR/vps-saas-deployer"
+  cp -rnv "$SOURCE_DIR"/* "$TARGET_DIR/vps-saas-deployer"
+  rm -f "$TARGET_DIR/vps-saas-deployer/bootstrap.sh"
+else
+  runuser -u "$HOST_USER" -- sh -c "
+    mkdir -p '$TARGET_DIR/vps-saas-deployer' &&
+    cp -rnv '$SOURCE_DIR'/* '$TARGET_DIR/vps-saas-deployer' &&
+    rm -f '$TARGET_DIR/vps-saas-deployer/bootstrap.sh'
+  "
+fi
 
 FINAL_UID=$(id -u)
 FINAL_USER=$(id -un 2>/dev/null || echo "UID:$FINAL_UID")
 
-echo "Success - Files were copied by user '$FINAL_USER' (UID=$FINAL_UID) in folder: $TARGET_DIR."
+echo "Success - Files were copied by user '$FINAL_USER' (UID=$FINAL_UID) in folder: $TARGET_DIR/vps-saas-deployer."
 echo "Package correctly deployed. Please take a look at Readme file. Enjoy."

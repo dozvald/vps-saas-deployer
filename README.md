@@ -16,7 +16,7 @@ Ce package contiendra également (**TO DO**) des outillages permettant de config
 
 **Prérequis**: Vos projets Git doivent être nommés sous la forme **MonProjet_spa** et **MonProjet_api**.
 
-De plus, si vous souhaitez utiliser ce package sur un poste de développeur, ces 2 projets devront se trouver dans un **dossier commun**.
+**Prérequis**: De plus, si vous souhaitez utiliser ce package sur un poste de développeur, ces 2 projets devront se trouver dans un **dossier commun**.
 
 Une autre organisation des dossiers et projets est possible, nécessitera d'adapter les fichiers docker-compose.yml en conséquence.
 
@@ -34,7 +34,7 @@ Concernant les environnements staging et production, il ne semble pas y avoir de
 Les commandes suivantes indiquent comment déployer le package dans le répertoire courant :
 - **Git Bash (Windows)**: docker run --pull always --rm -v "$(pwd -W):/target" davidozvald/vps-saas-deployer:latest
 - **PowerShell (Windows)**: docker run --pull always --rm -v "${pwd}:/target" davidozvald/vps-saas-deployer:latest
-- **Linux/macOS**: docker run --pull always --rm -v .:/target davidozvald/vps-saas-deployer:latest
+- **Linux/macOS**: docker run --pull always --rm -v .:/target -e HOST_UID=\$(id -u) -e HOST_GID=\$(id -g) davidozvald/vps-saas-deployer:latest
 
 ## Configuration du dépôt 
 
