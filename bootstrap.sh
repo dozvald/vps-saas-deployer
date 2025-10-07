@@ -39,8 +39,8 @@ fi
 if [ "$error_missing_env" -eq 1 ] || [ "$error_missing_volume" -eq 1 ]; then
   echo ""
   echo "Please use one of the following commands to deploy the package in the current folder:"
-  echo "- Git Bash (Windows): docker run --pull always --rm -e HOST_UID=\$(id -u) -e HOST_GID=\$(id -g) -v \"\$(pwd -W):/target\" davidozvald/vps-saas-deployer:latest"
-  echo "- PowerShell (Windows): docker run --pull always --rm -e HOST_UID=\$(id -u) -e HOST_GID=\$(id -g) -v \"\${pwd}:/target\" davidozvald/vps-saas-deployer:latest"
+  echo "- Git Bash (Windows): docker run --pull always --rm -v \"\$(pwd -W):/target\" davidozvald/vps-saas-deployer:latest"
+  echo "- PowerShell (Windows): docker run --pull always --rm -v \"\${pwd}:/target\" davidozvald/vps-saas-deployer:latest"
   echo "- Linux/macOS: docker run --pull always --rm -e HOST_UID=\$(id -u) -e HOST_GID=\$(id -g) -v .:/target davidozvald/vps-saas-deployer:latest"
 fi
 
