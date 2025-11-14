@@ -2,8 +2,8 @@
 
 Ce package a pour but de faciliter le déploiement d'un nouveau VPS ainsi qu'un Saas SPA/API au plus vite.
 
-Il contient l'outillage nécessaire pour le déploiement des projets **SPA Angular**, **API .NET Core** ainsi que la base **MySQL** et enfin le **reverse proxy**.  
-Ce déploiement docker peut aussi bien être utilisé sur un poste de développeur ou sur le VPS. Il fournit une configuration et une stack homogène entre **développement (local)**, **staging (VPS)** et **production (VPS)**.
+Il contient (en l'état, mais il peut être évidemment adapté à vos besoins) l'outillage nécessaire pour le déploiement des projets **SPA Angular**, **API .NET Core** ainsi que la base **MySQL** et enfin le **reverse proxy**.  
+Ce déploiement docker peut aussi bien être utilisé sur un poste de développeur que sur le VPS ou n'importe quelle machine hôte. Il fournit une configuration et une stack homogène entre **développement (local)**, **staging (VPS)** et **production (VPS)**.
 
 **Pour un poste de développeur** : il permet de builder l'image docker localement, et de lancer la stack docker-compose.
 **Pour un VPS (ou autre serveur de déploiement)** : il permet de déployer en quelques secondes votre Saas Spa/Api avec simplicité.
@@ -11,6 +11,15 @@ Ce déploiement docker peut aussi bien être utilisé sur un poste de développe
 Quelques prérequis diffèreront selon le cas d'usage de ce package, entre poste de développeur et environnement de déploiement (staging, production).
 
 Ce package contiendra également (**TO DO**) des outillages permettant de configurer le VPS.
+
+## Uilisation du projet et de l'image docker
+
+Ce projet Git est public, et fournit une structure pour le build et le déploiement de vos projets.
+Vous êtes libres de cloner ce projet et de l'adapter à vos besoins.
+
+Il peut être utilisé de 2 façons :
+- en utilisant la dernière image docker (publique) : "**docker run davidozvald/vps-saas-deployer**" (et lire le prompt). Cette image docker génèrera le package de build/déploiement directement dans le dossier courant.
+- ou bien "git clone" de ce projet directement sur le poste de développeur ou une machine de déploiement (staging, production). Ce n'est pas la méthode à privilégier.
 
 ## Configuration des projets Git
 
