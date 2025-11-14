@@ -1,9 +1,11 @@
 # VPS et déploiement docker-compose
 
-Ce package a pour but de faciliter le déploiement d'un nouveau VPS ainsi qu'un Saas SPA/API au plus vite.
+Ce projet a pour but de faciliter le déploiement d'un nouveau VPS ainsi qu'un Saas SPA/API au plus vite en générant un package de déploiement.
+
+Pour les plus curieux/impatients qui souhaitent voir plutôt que lire, vous pouvez directement lancer l'image docker dans le répertoire de votre choix : "**docker run davidozvald/vps-saas-deployer**"
 
 Il contient (en l'état, mais il peut être évidemment adapté à vos besoins) l'outillage nécessaire pour le déploiement des projets **SPA Angular**, **API .NET Core** ainsi que la base **MySQL** et enfin le **reverse proxy**.  
-Ce déploiement docker peut aussi bien être utilisé sur un poste de développeur que sur le VPS ou n'importe quelle machine hôte. Il fournit une configuration et une stack homogène entre **développement (local)**, **staging (VPS)** et **production (VPS)**.
+Ce déploiement docker peut aussi bien être utilisé sur un poste de développeur que sur le VPS ou n'importe quelle machine hôte. Il fournit une configuration et une stack homogène et cohérente entre **développement (local)**, **staging (VPS)** et **production (VPS)**.
 
 **Pour un poste de développeur** : il permet de builder l'image docker localement, et de lancer la stack docker-compose.
 **Pour un VPS (ou autre serveur de déploiement)** : il permet de déployer en quelques secondes votre Saas Spa/Api avec simplicité.
@@ -12,26 +14,24 @@ Quelques prérequis diffèreront selon le cas d'usage de ce package, entre poste
 
 Ce package contiendra également (**TO DO**) des outillages permettant de configurer le VPS.
 
-## Uilisation du projet et de l'image docker
+## Projet Git et customisation
 
-Ce projet Git est public, et fournit une structure pour le build et le déploiement de vos projets.
-Vous êtes libres de cloner ce projet et de l'adapter à vos besoins.
+Ce projet Git est public, et fournit une structure "par défaut" (.NET / Angular / reverse proxy) pour le build et le déploiement de vos images.
+Vous êtes libres de cloner ce projet et de l'adapter à vos besoins. Vous pourrez ensuite générer votre propre image Docker, grâce au dockerfile déjà présent, et l'utiliser à votre convenance.
 
-Il peut être utilisé de 2 façons :
-- en utilisant la dernière image docker (publique) : "**docker run davidozvald/vps-saas-deployer**" (et lire le prompt). Cette image docker génèrera le package de build/déploiement directement dans le dossier courant.
-- ou bien "git clone" de ce projet directement sur le poste de développeur ou une machine de déploiement (staging, production). Ce n'est pas la méthode à privilégier.
+Vous pouvez aussi utiliser directement l'image docker que je mets à disposition publiquement : "**docker run davidozvald/vps-saas-deployer**". Cette image docker génèrera le package de build/déploiement directement dans le dossier courant, qui nécessitera une rapide configuration (voir sections suivantes).
 
 ## Configuration des projets Git
 
-**Prérequis**: Vos projets Git doivent être nommés sous la forme **MonProjet_spa** et **MonProjet_api**.
+**Prérequis**: Les projets Git de vos projets doivent être nommés sous la forme **MonProjet_spa** et **MonProjet_api**.
 
 **Prérequis**: De plus, si vous souhaitez utiliser ce package sur un poste de développeur, ces 2 projets devront se trouver dans un **dossier commun**.
 
 Une autre organisation des dossiers et projets est possible, nécessitera d'adapter les fichiers docker-compose.yml en conséquence.
 
-## Récupération du dépôt via docker
+## Récupération du package de déploiement via docker
 
-Pour récupérer ce dépôt sur le VPS (staging et production) ou le poste de développement (dev), 2 possibilités :
+Pour récupérer ce package de déploiement sur le VPS (staging et production) ou le poste de développement (dev), 2 possibilités :
 - via **docker run en une seule commande** (solution **à privilégier**, voir suite de ce paragraphe)
 - via un git clone du projet (nécessitera la suppression de certains fichiers et dossiers: .gitignore, .git, .dockerignore etc...).
 
